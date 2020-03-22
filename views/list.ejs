@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheep" href="css/bootstrap-grid.min.css">
+    <title>RTorrent Management - List</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-dark bg-dark justify-content-between">
+        <span class="navbar-brand ">Torrents list</span>
+        <form method="GET" class="form-inline" action="/delete/all">
+            <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Delete all finished</button>
+        </form>
+    </nav>
+    <table class="table table-hover table-dark">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Status</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% for(var i=0; i < torrents.length; i++) { %>
+            <tr>
+                <th scope="row">
+                    <p><%= torrents[i].name %></p>
+                    <small class="text-muted"><%= torrents[i].path %></small>
+                </th>
+                <td class="align-middle"><%= torrents[i].status %></td>
+                <td class="align-middle"><a class="btn btn-danger" href="/delete?hash=<%= torrents[i].hash %>&path=<%= torrents[i].encodedPath %>">Delete</a></td>
+            </tr>
+            <% } %>
+        </tbody>
+        </div>
+</body>
+
+</html>

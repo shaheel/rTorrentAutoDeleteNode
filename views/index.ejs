@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheep" href="css/bootstrap-grid.min.css">
+    <title>RTorrent Management - Settings</title>
+</head>
+
+<body>
+    <br /><br />
+    <div class="container">
+        <p class="lead">XMLRPC Settings for RTorrent</p>
+        <hr class="my-4">
+        <form method="POST" action="/save" id="save-form">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label>Username</label>
+                    <input type="text" class="form-control" name="username" placeholder="Username"
+                        value="<%= typeof username != 'undefined' ? username : '' %>">
+                </div>
+                <div class="form-group col-md-6">
+                    <label>Password</label>
+                    <input type="password" class="form-control" name="password" placeholder="Password"
+                        value="<%= typeof password != 'undefined' ? password : '' %>">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Host</label>
+                <input type="text" class="form-control" name="host" placeholder="sl.seedbox.eu"
+                    value="<%= typeof host != 'undefined' ? host : '' %>">
+            </div>
+            <div class="form-group">
+                <label for="path">Path</label>
+                <input type="text" class="form-control" id="path" name="path"
+                    placeholder="/rutorrent/plugins/httprpc/action.php"
+                    value="<%= typeof path != 'undefined' ? path : '' %>">
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="port">Port</label>
+                    <input type="text" class="form-control" id="port" name="port" placeholder="e.g 443"
+                        value="<%= typeof port != 'undefined' ? port : '' %>">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="gridCheck" name="ssl"
+                        <%= typeof ssl != 'undefined' && ssl === 'on' ? 'checked' : '' %>>
+                    <label class="form-check-label" for="gridCheck">Use SSL</label>
+                </div>
+            </div>
+            <br /><br />
+            <p class="lead">FTP Settings</p>
+            <hr class="my-4">
+
+            <div class="form-group">
+                <label>Host</label>
+                <input type="text" class="form-control" name="ftpHost" placeholder="ftpserver.com"
+                    value="<%= typeof ftpHost != 'undefined' ? ftpHost : '' %>">
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="port">Port</label>
+                    <input type="text" class="form-control" name="ftpPort" placeholder="e.g 21"
+                        value="<%= typeof ftpPort != 'undefined' ? ftpPort : '' %>">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label>Username</label>
+                    <input type="text" class="form-control" name="ftpUsername" placeholder="Username"
+                        value="<%= typeof ftpUsername != 'undefined' ? ftpUsername : '' %>">
+                </div>
+                <div class="form-group col-md-6">
+                    <label>Password</label>
+                    <input type="password" class="form-control" name="ftpPassword" placeholder="Password"
+                        value="<%= typeof ftpPassword != 'undefined' ? ftpPassword : '' %>">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="ftpSecure"
+                        <%= typeof ftpSecure != 'undefined' && ftpSecure === 'on' ? 'checked' : '' %>>
+                    <label class="form-check-label">Secure</label>
+                </div>
+            </div>
+            <br /><br />
+            <p class="lead">Mapping</p>
+            <hr class="my-4">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label>XMLRPC source path</label>
+                    <input type="text" class="form-control" name="mappingRtorrentPath" placeholder="/home/folder/"
+                        value="<%= typeof mappingRtorrentPath != 'undefined' ? mappingRtorrentPath : '' %>">
+                </div>
+                <div class="form-group col-md-6">
+                    <label>FTP destination path</label>
+                    <input type="text" class="form-control" name="mappingFtpPath" placeholder="/"
+                        value="<%= typeof mappingFtpPath != 'undefined' ? mappingFtpPath : '' %>">
+                </div>
+            </div>
+
+            <br />
+            <button type="submit" class="btn btn-dark">Save and connect</button>
+        </form>
+    </div>
+</body>
+
+</html>
