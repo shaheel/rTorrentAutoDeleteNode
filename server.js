@@ -21,7 +21,7 @@ module.exports = {
         app.get('/', function (request, response) {
             fs.readFile(FILEPATH_SETTINGS, function (error, data) {
                 if (error) {
-                    response.send(error);
+                    response.render('index');
                 } else {
                     response.render('index', JSON.parse(data));
                 }
