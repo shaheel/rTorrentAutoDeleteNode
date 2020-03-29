@@ -6,8 +6,10 @@ const url = require('url');
 const FILEPATH_SETTINGS = __dirname + '/settings.json';
 let Rtorrent = require('./rtorrentclient').RtorrentClient;
 let Ftp = require('./ftpclient').FTPClient;
+let Syncthing = require('./syncthingclient').SyncthingClient;
 var rtorrent;
 var ftp;
+var syncthing;
 
 module.exports = {
     setup: function () {
@@ -34,7 +36,7 @@ module.exports = {
                 response.render('list', { torrents: results[results.length - 1] });
             }).catch(error => {
                 response.send(error);
-            });
+            });           
         });
 
         app.post('/save', function (request, response) {
@@ -46,6 +48,7 @@ module.exports = {
                 } else {
                     rtorrent = new Rtorrent(request.body);
                     ftp = new Ftp(request.body);
+                    syncthing = new Syncthing(request.body);
                     response.redirect('/list');
                 }
             });
