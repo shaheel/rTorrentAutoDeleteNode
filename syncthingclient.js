@@ -2,6 +2,10 @@ const syncthing = require('node-syncthing')
 const Promise = require('promise')
 
 function SyncthingClient(json) {
+    if(json.syncthingHost == 'undefined') {
+        return null
+    }
+
     const options = {
         host: json.syncthingHost,
         port: json.syncthingPort,

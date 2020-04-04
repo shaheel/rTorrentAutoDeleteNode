@@ -95,19 +95,22 @@ RtorrentClient.prototype.mapTorrents = function (torrents, otherMapPath) {
 }
 
 RtorrentClient.prototype.fetchAll = function (status, otherMapPath) {
-    let self = this;
+    let self = this
     return new Promise(function (fulfill, reject) {
         self.call("d.multicall2", self.getVariables())
         .done(function (torrents) {
+            let result = self.mapTorrents(torrents, otherMapPath)
 
-            let result = self.mapTorrents(torrents, otherMapPath).filter(function(torrent) {
-                return torrent["status"] == status;
-            });
+            if(status != null) {
+                result = result.filter(function(torrent) {
+                    return torrent["status"] == status
+                })
+            }
 
-            fulfill(result);
+            fulfill(result)
 
-        }, reject);
-    });
+        }, reject)
+    })
 }
 
 RtorrentClient.prototype.stopTorrent = function(hash) {

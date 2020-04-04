@@ -1,2 +1,2 @@
-let Server = require('./server');
-Server.setup();
+let Server = require('./server')
+Server.setup()

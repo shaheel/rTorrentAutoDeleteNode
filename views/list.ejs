@@ -12,6 +12,9 @@
 <body>
     <nav class="navbar navbar-dark bg-dark justify-content-between">
         <span class="navbar-brand ">Torrents list</span>
+        <% if(syncthing != 'undefined') { %>
+        <span class="badge <%= syncthing['state'] == 'idle' ? "badge-secondary" : "badge-warning" %>">Syncthing is <%= syncthing['state'] %></span>
+        <% } %>
         <form method="GET" class="form-inline" action="/delete/all">
             <button class="btn btn-outline-light my-2 my-sm-0" type="submit">Delete all finished</button>
         </form>
