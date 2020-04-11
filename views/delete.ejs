@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheep" href="/css/bootstrap-grid.min.css">
+    <title>RTorrent Management - Delete</title>
+</head>
+
+<body>
+    <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+            <h1 class="display-4" id="message">Please wait</h1>
+            <p class="lead" id="log"></p>
+        </div>
+    </div>
+</body>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
+<script>
+    $(function () {
+        var socket = io('http://localhost:2101')
+        socket.on('connect', function() {
+            socket.on('deletion', function(message) {
+                $('#message').text(message)
+                $('#log').append(message + '<br/>')
+            })
+        })
+    })
+  </script>
+</html>

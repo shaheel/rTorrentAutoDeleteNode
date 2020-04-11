@@ -10,10 +10,10 @@ function RtorrentClient(json) {
             user: json.username,
             pass: json.password
         }
-    };
+    }
 
-    this.mappingPath = json.mappingRtorrentPath;
-    this.client = json.ssl === "on" ? Xmlrpc.createSecureClient(options) : Xmlrpc.createClient(options);
+    this.mappingPath = json.mappingRtorrentPath
+    this.client = json.ssl === "on" ? Xmlrpc.createSecureClient(options) : Xmlrpc.createClient(options)
 }
 
 RtorrentClient.prototype.call = function (command, data) {

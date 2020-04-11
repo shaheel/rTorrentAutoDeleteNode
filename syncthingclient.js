@@ -2,7 +2,7 @@ const syncthing = require('node-syncthing')
 const Promise = require('promise')
 
 function SyncthingClient(json) {
-    if(json.syncthingHost == 'undefined') {
+    if(!json.syncthingHost) {
         return null
     }
 
@@ -23,6 +23,17 @@ SyncthingClient.prototype.status = function () {
     let self = this;
     return new Promise(function (fulfill, reject) {
         self.client.db.status(self.folder).then( result => {
+            fulfill(result)
+        }, error => {
+            reject(error)
+        });
+    });
+}
+
+SyncthingClient.prototype.browse = function () {
+    let self = this;
+    return new Promise(function (fulfill, reject) {
+        self.client.db.browse(self.folder).then( result => {
             fulfill(result)
         }, error => {
             reject(error)
