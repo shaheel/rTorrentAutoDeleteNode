@@ -17,14 +17,14 @@ function RtorrentClient(json) {
 }
 
 RtorrentClient.prototype.call = function (command, data) {
-    let self = this;
+    let self = this
     return new Promise(function (fulfill, reject) {
         self.client.methodCall(command, data, function (error, value) {
-          if (error) reject(error);
-          else fulfill(value);
-        });
-    });
-};
+          if (error) reject(error)
+          else fulfill(value)
+        })
+    })
+}
 
 // https://github.com/roastlechon/nodejs-rtorrent/blob/master/src/node/lib/rtorrent.js
 RtorrentClient.prototype.getStatus = function (value) {
@@ -69,20 +69,20 @@ RtorrentClient.prototype.getVariables = function () {
 
 RtorrentClient.prototype.mapTorrents = function (torrents, otherMapPath) {
 
-    let self = this;
+    let self = this
     function getPath(name, directory, isMultiFile, otherMapPath) {
-        let result;
+        let result
         if (isMultiFile === '1') {
-            result = directory;
+            result = directory
         } else {
-            result = directory + '/' + name;
+            result = directory + '/' + name
         }
 
         if(otherMapPath != 'undefined') {
-            result = result.replace(self.mappingPath, otherMapPath);
+            result = result.replace(self.mappingPath, otherMapPath)
         }
 
-        return result;
+        return result
     }
 
     return torrents.map(torrent => ({

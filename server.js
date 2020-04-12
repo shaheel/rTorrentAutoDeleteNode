@@ -6,7 +6,7 @@ const url = require('url')
 const http = require('http').Server(app)
 const io = require('socket.io')(http)
 const {default: PQueue} = require('p-queue')
-const FILEPATH_SETTINGS = __dirname + '/settings.json'
+const FILEPATH_SETTINGS = '/config/settings.json'
 let Promise = require('promise');
 let Rtorrent = require('./rtorrentclient').RtorrentClient
 let Ftp = require('./ftpclient').FTPClient
@@ -15,12 +15,62 @@ var rtorrent
 var ftp
 var syncthing
 
-function setupServices() {
-    fs.readFile(FILEPATH_SETTINGS, function (error, data) {
-        let json = JSON.parse(data)
-        rtorrent = new Rtorrent(json)
-        ftp = new Ftp(json)
-        syncthing = new Syncthing(json)
+function getSettings() {
+    return new Promise(function(fulfill, reject) {
+        fs.ensureFile(FILEPATH_SETTINGS, function(error) {
+            if(!error) {
+                fs.readJson(FILEPATH_SETTINGS, function(error, data) {
+                    if(!error) {
+                        fulfill(data)
+                    } else {
+                        reject(error)
+                    }
+                })
+            } else {
+                reject(error)
+            }
+        })
+    })
+}
+
+function setSettings(data) {
+    return new Promise(function(fulfill, reject) {
+        fs.ensureFile(FILEPATH_SETTINGS, function(error) {
+            if(error) {
+                reject(error)
+            } else {
+                fs.writeJson(FILEPATH_SETTINGS, data, (error) => {
+                    if (error) {
+                        reject(error)
+                    } else {
+                        fulfill()
+                    }
+                })
+            }
+       })
+    })
+}
+
+function resetServices() {
+    rtorrent = null
+    ftp = null
+    syncthing = null
+}
+
+function setupServicesIfNeeded() {
+    return new Promise(function(fulfill, reject) {
+        if(!rtorrent || !ftp) {
+            getSettings().then( json => {
+                rtorrent = new Rtorrent(json)
+                ftp = new Ftp(json)
+                syncthing = new Syncthing(json)
+                fulfill()
+            }, error => {
+                reject(error)
+            })
+        } else {
+            fulfill()
+        }
     })
 }
 
@@ -77,40 +127,40 @@ module.exports = {
         app.set('view engine', 'ejs')
 
         app.get('/', function (request, response) {
-            fs.readFile(FILEPATH_SETTINGS, function (error, data) {
-                response.render('index', error ? null : JSON.parse(data))
+            getSettings().then( data => {
+                response.render('index', data)
+            }, _ => {
+                response.render('index')
             })
         })
 
         app.get('/list', function (request, response) {
             let self = this
-            let services = [rtorrent.fetchAll(request.query.status, ftp.mappingPath), ftp.connect()]
-            if (syncthing != null) {
-                services.push(syncthing.status())
-                syncthing.browse().then(result => {
-                    console.log(result)
+            setupServicesIfNeeded().then( _ => {
+                let services = [rtorrent.fetchAll(request.query.status, ftp.mappingPath), ftp.connect()]
+                if (syncthing != null) {
+                    services.push(syncthing.status())
+                    syncthing.browse().then(result => {
+                        console.log(result)
+                    })
+                }
+    
+                Promise.all(services).then(results => {
+                    response.render('list', { torrents: results[0], syncthing: self.syncthing != 'undefined' ? results[results.length - 1] : null })
+                }).catch(error => {
+                    response.send(error)
                 })
-            }
-
-            Promise.all(services).then(results => {
-                response.render('list', { torrents: results[0], syncthing: self.syncthing != 'undefined' ? results[results.length - 1] : null })
-            }).catch(error => {
+            }, error => {
                 response.send(error)
             })
         })
 
         app.post('/save', function (request, response) {
-            const json = JSON.stringify(request.body)
-
-            fs.writeFile(FILEPATH_SETTINGS, json, (error) => {
-                if (error) {
-                    response.send(error)
-                } else {
-                    response.redirect('/list')
-                    rtorrent = new Rtorrent(request.body)
-                    ftp = new Ftp(request.body)
-                    syncthing = new Syncthing(request.body)
-                }
+            resetServices()
+            setSettings(request.body).then( _ => {
+                response.redirect('/list')
+            }, error => {
+                response.send(error)
             })
         })
 
