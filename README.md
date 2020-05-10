@@ -4,7 +4,7 @@ A lightweight GUI for rTorrent to auto delete finished downloads with data using
 #### Main Feature
 * See your list of finished downloads and delete them with data in a single click or automated (tbd)
 
-### Usage
+### Installation
 From the root directory
 1. Run `npm install`
 2. Run `node app.js`

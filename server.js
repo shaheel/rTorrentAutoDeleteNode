@@ -93,7 +93,7 @@ function deleteAllFinishedTorrentsWithSocketEmission() {
     
     rtorrent.fetchAll("finished", ftp.mappingPath).then(results => {
         results.forEach(torrent => {
-            io.emit('deletion', 'Deleting ' + torrent.name)
+            io.emit('deletion', 'Queued for deletion ' + torrent.name)
             queue.add(() => new Promise(function (fulfill, reject) {
                 deleteTorrent(torrent.hash, torrent.path).then(result => {
                     io.emit('deletion', 'Deleted ' + torrent.name)
@@ -106,13 +106,7 @@ function deleteAllFinishedTorrentsWithSocketEmission() {
         })
     })
 
-    let count = 0
-    queue.on('active', () => {
-        count++
-        console.log('Working on item '+count)
-    })
-
-    queue.onEmpty().then(empty => {
+    queue.on('idle', () => {
         io.emit('deletion', 'Completed')
     })
 }
