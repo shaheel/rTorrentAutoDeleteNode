@@ -134,9 +134,11 @@ module.exports = {
                 let services = [rtorrent.fetchAll(request.query.status, ftp.mappingPath), ftp.connect()]
                 if (syncthing != null) {
                     services.push(syncthing.status())
+                    /*
                     syncthing.browse().then(result => {
                         console.log(result)
                     })
+                    */
                 }
     
                 Promise.all(services).then(results => {
