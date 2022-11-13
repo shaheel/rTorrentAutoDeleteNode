@@ -14,6 +14,8 @@ let Syncthing = require('./syncthingclient').SyncthingClient
 var rtorrent
 var ftp
 var syncthing
+const queue = new PQueue({concurrency: 1})
+var cron = require('node-cron');
 
 function getSettings() {
     return new Promise(function(fulfill, reject) {
@@ -76,7 +78,7 @@ function setupServicesIfNeeded() {
 
 function deleteTorrent(hash, path) {
     return new Promise(function (fulfill, reject) {
-        rtorrent.stopTorrent(hash).then(stopResult => {
+       rtorrent.stopTorrent(hash).then(stopResult => {
             return ftp.removeFileOrDirectory(path)
         }).then(ftpDeleteResult => {
             return rtorrent.eraseTorrent(hash)
@@ -89,8 +91,13 @@ function deleteTorrent(hash, path) {
 }
 
 function deleteAllFinishedTorrentsWithSocketEmission() {
-    const queue = new PQueue({concurrency: 1})
-    
+    if(queue.size !== 0 && queue.pending !== 0) {
+        setTimeout(() => {
+            io.emit('deletion', 'Please wait ' + queue.size+queue.pending + ' deletion in progress')
+        }, 100);
+        return
+    }
+
     rtorrent.fetchAll("finished", ftp.mappingPath).then(results => {
         results.forEach(torrent => {
             io.emit('deletion', 'Queued for deletion ' + torrent.name)
@@ -108,6 +115,24 @@ function deleteAllFinishedTorrentsWithSocketEmission() {
 
     queue.on('idle', () => {
         io.emit('deletion', 'Completed')
+    })
+}
+
+function syncCheck() {
+    return new Promise(function (fulfill, reject) {
+        if (syncthing != null) {
+            syncthing.status().then(result => {
+                if(result["state"] == "idle") {
+                    fulfill(true)
+                } else {
+                    reject(result["state"])
+                }
+            },error => {
+                reject(error)
+            })
+        } else {
+            fulfill(true)
+        }
     })
 }
 
@@ -134,11 +159,6 @@ module.exports = {
                 let services = [rtorrent.fetchAll(request.query.status, ftp.mappingPath), ftp.connect()]
                 if (syncthing != null) {
                     services.push(syncthing.status())
-                    /*
-                    syncthing.browse().then(result => {
-                        console.log(result)
-                    })
-                    */
                 }
     
                 Promise.all(services).then(results => {
@@ -160,9 +180,9 @@ module.exports = {
             })
         })
 
-        app.get('/delete/all', function (request, response) {            
-            rtorrent.fetchAll("finished", ftp.mappingPath).then(results => {
-                if (results.length == 0) {
+        app.get('/delete/all', function (request, response) {
+            Promise.all([syncCheck(), rtorrent.fetchAll("finished", ftp.mappingPath)]).then(results => {                
+                if (results[1].length == 0) {
                     response.redirect('/list')
                 } else {
                     response.render('delete')
@@ -177,7 +197,8 @@ module.exports = {
             const hash = request.query.hash
             const path = decodeURIComponent(request.query.path)
             const redir = decodeURIComponent(request.query.redir)
-            deleteTorrent(hash, path).then(eraseTorrentResult => {
+
+            Promise.all([syncCheck(), deleteTorrent(hash, path)]).then(results => {
                 response.redirect( redir == 'undefined' ? '/list' : redir )
             }).catch(error => {
                 response.send(error)
@@ -186,6 +207,11 @@ module.exports = {
 
         http.listen(2101, function () {
             console.log('Listening on port 2101')
+
+            cron.schedule('0 */6 * * *', () => {
+                console.log('Auto delete just ran. Scheduled for every 6 hours');
+                deleteAllFinishedTorrentsWithSocketEmission();
+            });
         })
     }
 }

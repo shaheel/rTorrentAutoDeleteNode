@@ -113,6 +113,16 @@ RtorrentClient.prototype.fetchAll = function (status, otherMapPath) {
     })
 }
 
+RtorrentClient.prototype.fetchAllRaw = function () {
+    let self = this
+    return new Promise(function (fulfill, reject) {
+        self.call("d.multicall2", self.getVariables())
+        .done(function (torrents) {
+            fulfill(torrents)
+        }, reject)
+    })
+}
+
 RtorrentClient.prototype.stopTorrent = function(hash) {
     return this.call("d.stop", [hash]);
 }

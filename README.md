@@ -2,7 +2,10 @@
 A lightweight GUI for rTorrent to auto delete finished downloads with data using a FTP client, all written in Node.js
 
 #### Main Feature
-* See your list of finished downloads and delete them with data in a single click or automated (tbd)
+* See your list of finished downloads and delete them with data in a single click or automated.
+* Delete your downloads via FTP instead of using a rtorrent client.
+* Delete only when syncthing is not in progress to ensure that files were synced first.
+* Automatically delete your downloads every 6 hours
 
 ### Installation
 From the root directory
@@ -26,6 +29,7 @@ This project was created to facilite batch deletion on finished downloads as cur
 #### TODO
 Following improvements are still yet to be done (by order of priority) :
 
- * Add syncthing support (only delete when sync finished)
+ * Add a setting to change number of minute of hours to auto delete
+ * Handle errors on validating settings with a proper GUI.
+ * Improve listing GUI.
  * Make FTP client optional (delete keeping data)
- * Improve listing GUI
